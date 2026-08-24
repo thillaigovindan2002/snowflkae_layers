@@ -15,7 +15,7 @@ Disadvantages: Expensive, not incremental, skewed data reduces effectiveness.
 
 Interview One‑liner: “OPTIMIZE reduces small files; ZORDER improves multi‑column filtering but is costly.”
 
-###Liquid Clustering
+### Liquid Clustering
 Definition: Dynamic clustering that adapts automatically as data evolves.
 
 Why required: Handles skew better, reduces manual maintenance, replaces ZORDER.
