@@ -1205,10 +1205,123 @@ Pay only for what you use 💰.
 Best for BI tools (Power BI, Tableau).
 
 
+## Classic vs Serverless Compute         
+| Feature               | **Classic (Customer-managed)**             | **Serverless (Databricks-managed)**              |
+| --------------------- | ------------------------------------------ | ------------------------------------------------ |
+| **Programming**       | Spark, SQL, Python, Scala, R               | Mostly SQL + limited Python (depends on feature) |
+| **Primary Purpose**   | Full control workloads, custom pipelines   | Fast analytics, BI, simple workloads             |
+| **Typical Users**     | Data Engineers, Platform teams             | Analysts, BI users, Data Scientists              |
+| **Cluster Setup**     | You configure cluster (nodes, autoscaling) | No cluster setup needed                          |
+| **Cluster Lifecycle** | Manual / auto-termination                  | Fully managed (auto start/stop)                  |
+| **Startup Time**      | Slow (1–5 mins)                            | Instant ⚡                                        |
+| **Performance**       | Depends on config                          | Optimized by Databricks                          |
+| **Cost Model**        | Pay for cluster uptime (even idle)         | Pay per query / usage                            |
+| **Cost Efficiency**   | Lower if optimized well                    | High for intermittent workloads                  |
+| **Maintenance**       | You manage configs, libraries              | No maintenance                                   |
+| **Flexibility**       | High (custom libraries, configs)           | Limited customization                            |
+| **Security/Control**  | Full control (VPC, networking)             | Managed by Databricks                            |
+____________________________________________________________________________________________________________________________________________________________
 
+## Notebook Magic Commands
 
+| **Magic Command** | **Purpose** |
+| --- | --- |
+| **%python, %sql, %scala, %r** | Switch language inside a cell |
+| **%run** | Run another notebook (reuse code) |
+| **%fs** | File system operations (list, copy, move) |
+| **%sh** | Run shell commands |
+| **%md** | Add documentation/markdown |
+| **%pip** | Install Python libraries |
+| **%time** | Measure execution time |
 
+## %run vs import
 
+| **%run (Notebook‑based)** | **import (Python module‑based)** | **Why **``import``** is better** |
+| --- | --- | --- |
+| Runs entire notebook | Imports specific functions/classes | Loads only functions you need |
+| Notebook‑based | Python module‑based | Doesn’t execute unnecessary code |
+| Re‑executes every time | Loaded once | Faster ⚡ |
+| Less control | More control | Cleaner architecture |
+| Not ideal for production | Best practice | Recommended for modular pipelines |
+
+## 1. %run — How it Works
+
+Notebook: /Shared/utils_notebook
+~~~~~
+def add(a, b):
+    return a + b
+print("Notebook executed")
+~~~~~
+ Main Notebook
+~~~~~
+%run /Shared/utils_notebook
+add(2, 3)   # Output: 5
+~~~~
+
+Behavior:
+
+%run executes the entire notebook.
+
+It re‑runs all code (including print, heavy logic, file reads).
+
+Every call reloads everything → slow and inefficient.
+
+ Bad Example:
+
+~~~~~~
+df = spark.read.csv("big_file.csv")   # heavy operation ❌
+def clean(df):
+    return df.dropDuplicates()
+~~~~~~
+Using %run here → reloads the big file every time → slows down notebook execution.
+
+2. import — Best Practice
+ File: utils.py
+
+~~~~
+def add(a, b):
+    return a + b
+~~~~
+📘 Main Notebook
+
+~~~~
+import sys
+sys.path.append("/Workspace/Repos/your_repo/")
+import utils
+utils.add(2, 3)
+~~~~~
+👉 Behavior:
+
+Loads only the functions/classes you need.
+
+Doesn’t execute unnecessary code.
+
+Faster ⚡ because it’s loaded once.
+
+Cleaner architecture → modular, reusable, production‑ready.
+
+## %run vs dbutils.notebook.run vs import
+
+| **Criteria** | **%run** (Notebook‑based) | **dbutils.notebook.run()** | **import (Python module)** |
+| --- | --- | --- | --- |
+| **Main Use Case** | Reuse variables & functions | Run notebook as a job | Modular reusable code |
+| **Execution Type** | Inline (same notebook) | Separate job execution | Load functions only |
+| **Thread/Process** | Same thread | New job / separate context | Same process |
+| **Performance** | Medium (re‑runs full notebook) | Slower (job overhead) | Fast ⚡ |
+| **Input Parameters** | ❌ Not supported | ✅ Supported | ✅ Supported |
+| **Output Return** | ❌ No | ✅ Yes (string output) | ✅ Yes |
+| **Exception Handling** | ❌ Limited | ✅ Supported | ✅ Supported |
+| **Reusability** | Low | Medium | High ✅ |
+| **Best for Production** | ❌ No | ⚠️ Limited | ✅ Yes |
+| **Magic Command** | ✅ Yes | ❌ No | ❌ No |
+
+## Scenario Mapping
+
+| **Scenario** | **Best Option** |
+| --- | --- |
+| Quick dev reuse | ``%run`` |
+| Pipeline orchestration | ``dbutils.notebook.run()`` |
+| Production ETL / ML | ``import`` ✅ |
 
 
 
