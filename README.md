@@ -95,7 +95,7 @@ adaptive query optimization with lower maintenance overhead.
 | Live external querying | No | No | Yes |
 | DROP deletes data | Yes | No | No |
 
-**Managed Table**
+## Managed Table
 Databricks manages metadata + physical files.
 
 No storage path needed.
@@ -111,7 +111,7 @@ CREATE TABLE main.sales.orders (
   order_date DATE
 ) USING DELTA;
 ~~~~~~~~
-**External Table**
+## External Table
 Unity Catalog manages metadata only.
 
 Data remains in ADLS storage.
@@ -131,7 +131,7 @@ CREATE TABLE main.raw.sales_ext (
 ) USING DELTA
 LOCATION 'abfss://raw@storageacct.dfs.core.windows.net/sales/';
 ~~~~~~~
-**Foreign Table (Federation)**
+## Foreign Table (Federation)
 Query external DBs without copying data.
 
 Example: SQL Server federation.
@@ -154,7 +154,7 @@ SELECT * FROM sql_foreign_catalog.dbo.customers;
 ## Why UDFs in Security
 Purpose → Dynamic masking, Row filtering, Access rules.
 
-**Column‑Level Masking UDF**
+### Column‑Level Masking UDF
 ~~~~~~
 CREATE FUNCTION mask_ssn(salary STRING)
 RETURN CASE
@@ -166,7 +166,7 @@ ALTER TABLE catalog.schema.table
 ALTER COLUMN salary
 SET MASK catalog.schema.mask_ssn;
 ~~~~~~~~
-**Row‑Level Masking UDF**
+### Row‑Level Masking UDF
 ~~~~~
 CREATE FUNCTION region_filter(region STRING)
 RETURN CASE
@@ -178,7 +178,7 @@ END;
 ALTER TABLE employees
 SET ROW FILTER region_filter ON (region);
 ~~~~~~~
-**Masking UDF example in Unity Catalog**
+### Masking UDF example in Unity Catalog
 Step 1 — Create Masking UDF
 ~~~~~
 CREATE FUNCTION salary_mask(salary STRING)
@@ -209,7 +209,7 @@ Purpose → Store CSV, JSON, PDFs, Images, ML models, unstructured/semi‑struct
 | File storage | Limited | Primary purpose |
 | Delta format | Usually yes | Any file type |
 
-1. Lakeflow Pipeline Compute (formerly Delta Live Tables)
+## Lakeflow Pipeline Compute (formerly Delta Live Tables)
 How is it created?  You do not create a cluster manually.
 
 Instead:
@@ -221,20 +221,19 @@ Pipelines
 Create Pipeline
 
 
-Example
+**Example
 Pipeline Name : customer_pipeline
 Notebook : customer_pipeline.py
 Target Catalog : main
 Target Schema : bronze
 Mode : Triggered / Continuous
 Compute : Managed by Databricks
-
-Click Create.
+Click Create.**
 
 Databricks automatically provisions the compute.
-Perfect Thanigai 👌 — here’s the interview‑style breakdown for Lakeflow Pipeline Compute (formerly Delta Live Tables) creation:
+Lakeflow Pipeline Compute (formerly Delta Live Tables) creation:
 
-🔹 How Lakeflow Pipeline Compute is Created
+### How Lakeflow Pipeline Compute is Created
 You do not create clusters manually.
 
 Instead, Databricks provisions compute automatically when you define a pipeline.
@@ -271,7 +270,7 @@ Flexibility → Supports both batch (Triggered) and streaming (Continuous).
 ⚖️ Interview One‑Liner
 “Lakeflow Pipeline Compute lets you build ETL pipelines without managing clusters — you define the pipeline (name, notebook, catalog, schema, mode), and Databricks provisions compute automatically, supporting both batch and streaming.”
 
-👉 Thanigai, do you want me to also prepare a visual lifecycle diagram (Workspace → Pipeline → Notebook → Managed Compute → Bronze/Silver/Gold tables) so you can memorize the flow faster for interviews?
+visual lifecycle diagram (Workspace → Pipeline → Notebook → Managed Compute → Bronze/Silver/Gold tables) so you can memorize the flow faster for interviews?
 
 1. Broadcast Join ->large_df.join(broadcast(small_df), "id") 
 2. Repartition Before Join -> 💡 Ensures same join keys go to same partitions. df1.repartition("id").join(df2.repartition("id"), "id")
