@@ -1259,7 +1259,7 @@ print("Notebook executed")
 ~~~~~
 %run /Shared/utils_notebook
 add(2, 3)   # Output: 5
-~~~~
+~~~~~
 
 Behavior:
 
@@ -1303,7 +1303,7 @@ Faster ⚡ because it’s loaded once.
 
 Cleaner architecture → modular, reusable, production‑ready.
 
-## %run vs dbutils.notebook.run vs import
+## run vs dbutils.notebook.run vs import
 
 | **Criteria** | **%run** (Notebook‑based) | **dbutils.notebook.run()** | **import (Python module)** |
 | --- | --- | --- | --- |
