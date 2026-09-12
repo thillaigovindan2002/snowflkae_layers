@@ -22,11 +22,11 @@ Works across multiple workspaces in the same metastore.
 
 ## Best Practice Architecture
 Unity Catalog
-   ↓
-├── finance
-├── hr
-├── sales
-└── marketing
+   
+ finance
+ hr
+ sales
+ marketing
 Inside each: catalog → schema → tables
 
 ## Hierarchy in Unity Catalog
