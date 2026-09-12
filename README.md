@@ -58,6 +58,7 @@ Storage layer → ADLS Gen2 / OneLake.
 Consumption layer → BI tools like Power BI, Fabric, SQL Analytics**
 
 ## Partitioning vs Liquid Clustering
+
 Partitioning → Physically splits data into folders.
 ~~~~~
 CREATE TABLE sales (
@@ -68,7 +69,9 @@ CREATE TABLE sales (
 )
 PARTITIONED BY (customer_id);
 ~~~~~~~
+
 Liquid Clustering → Internal file organization, adaptive, automatic.
+
 ~~~~~
 CREATE TABLE sales (
   order_id INT,
