@@ -3,6 +3,7 @@
 ## Unity Catalog
 **Unity Catalog**
 *Centralized governance + metadata layer in Databricks.
+
 *Works across multiple workspaces in the same metastore.
 ## Unity Catalog vs Catalog (Main Difference)
 | **Item** | **Meaning** |
