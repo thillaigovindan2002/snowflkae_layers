@@ -1487,21 +1487,469 @@ SQL queries
 Scheduling via CRON expressions or time‑based triggers.
 
 
+### Passing Parameters to Notebooks
+Use Job Parameters / Base Parameters.
+~~~~~
+dbutils.widgets.text("table_name","")
+dbutils.widgets.text("load_type","")
+table_name = dbutils.widgets.get("table_name")
+load_type = dbutils.widgets.get("load_type")
+~~~~~
+### Returning Values Between Tasks
+Use dbutils.jobs.taskValues.set/get.
+~~~~
+# Notebook A
+dbutils.jobs.taskValues.set(key="count", value=5000)
+
+# Notebook B
+count = dbutils.jobs.taskValues.get(taskKey="task_A", key="count", default=0)
+print(count)
+~~~~~
+### Parameters in For‑Each Loop
+Jobs support for‑each loops.
+
+Parameters can be passed dynamically to each iteration (e.g., different table names).
+👉 Useful for batch processing multiple datasets with one notebook.
+
+### Failure Handling & Retries
+Retry Policy: Configure retries per task.
+
+Repair Run: Rerun only failed tasks without restarting the entire job.
+👉 Ensures efficient recovery from errors.
+### Automated Notifications
+Jobs can send email notifications on success/failure.
+
+Configurable in Job UI → Notifications tab.
+👉 Ensures stakeholders are alerted immediately on job failures.
+## Auto Loader
+Auto Loader is a ready‑to‑use library in Databricks for incremental ingestion.
+
+No complex setup required.
+
+Supports multiple formats: CSV, JSON, Parquet, Avro, ORC, etc.
+👉 Interview Line: “Auto Loader automatically detects and ingests new files from cloud storage with schema evolution and checkpointing.”
+
+## File Detection Modes
+
+### Directory Listing Mode (Default, older)
+Auto Loader identifies new files by listing the input directory.
+
+No additional permissions required.
+
+Simple to configure but less efficient (repeated scans).
+👉 Best for POCs or small projects.
+
+### File Notification Mode (Recommended, newer)
+Uses cloud file notifications + queue services.
+
+Requires infra setup (Event Grid, Queue, etc.).
+
+Highly efficient → lower latency, lower cost.
+👉 Best for production workloads.
+
+Flow:  
+File → Cloud Storage → Event Broker → Queue Service → Auto Loader consumes new file list.
+
+## Trigger Types
+### availableNow
+
+Processes all available files once, then stops.
+
+Perfect for incremental batch workloads.
+~~~
+df = (
+  spark.readStream
+       .format("cloudFiles")
+       .option("cloudFiles.format", "csv")
+       .load("/mnt/raw/")
+)
+
+(df.writeStream
+   .trigger(availableNow=True)
+   .option("checkpointLocation", "/chk/")
+   .start("/bronze/"))
+
+~~~~~~
+**🔥 What Happens?
+✅ Processes all available files like batch
+✅ Stops automatically after completion
+✅ Still keeps Auto Loader benefits: schema evolution, incremental tracking, no duplicates**
+
+### processingTime
+
+Runs continuously at defined intervals.
+
+Best for real‑time ingestion.
+
+~~~~~
+df = (
+  spark.readStream
+       .format("cloudFiles")
+       .option("cloudFiles.format", "csv")
+       .load("/mnt/raw/")
+)
+
+(df.writeStream
+   .trigger(processingTime="1 minute")
+   .option("checkpointLocation", "/chk/")
+   .start("/bronze/"))
+
+~~~~~~
+
+### 
+once
+
+Processes all data once, then exits.
+
+Good for one‑time loads.
+~~~~
+df = (
+  spark.readStream
+       .format("cloudFiles")
+       .option("cloudFiles.format", "csv")
+       .load("/mnt/raw/")
+)
+
+(df.writeStream
+   .trigger(once=True)
+   .option("checkpointLocation", "/chk/")
+   .start("/bronze/"))
+~~~~
+
+## Schema Handling
+Schema Location: .option("cloudFiles.schemaLocation","/schema/") → tracks schema changes.
+
+Options:
+
+Provide schema manually (StructType/StructField) → preferred for production.
+
+No schema provided → defaults all columns to string.
+
+Use .option("cloudFiles.inferColumnTypes","true") to infer datatypes automatically.
+
+👉 Interview Line: “Schema location ensures Auto Loader can evolve schema safely across new files.”
+
+### Checkpoint Location
+.option("checkpointLocation","/chk/") → stores metadata of processed files.
+
+Ensures exactly‑once processing and avoids duplicates.
+### Corrupted Data Handling in Auto Loader
+Auto Loader has built‑in functionality to handle corrupted rows or schema mismatches.
+
+This is managed using the Rescue Data concept.
+~~~~
+.option("cloudFiles.schemaEvolutionMode","rescue")
+~~~~
+If not provided, rescue mode is the default.
+
+Auto Loader automatically creates a special column: _rescued_data.
+
+This column stores:
+
+Rows with corrupted data
+
+Rows with schema mismatches (extra columns, unexpected datatypes, etc.)
+### Rescue Data Handling
+Auto Loader handles corrupted/unmatching schema rows automatically.
+
+Use: .option("cloudFiles.schemaEvolutionMode","rescue").
+
+Creates _rescued_data column → stores corrupted rows.
+
+👉 Interview Line: “Rescue data ensures ingestion continues even if schema mismatches occur, storing bad rows in a separate column.”
+
+⚖️ Architect‑Level Interview Answer
+“Databricks Auto Loader supports two file detection modes: directory listing (default, simple but less efficient) and file notification (recommended for production). It offers three trigger types — availableNow, processingTime, and once — for batch and streaming workloads. Schema evolution is managed via schemaLocation, checkpointLocation ensures exactly‑once processing, and rescue data handles corrupted rows gracefully. Together, these features make Auto Loader a powerful tool for incremental and real‑time ingestion.”
+
+### Debugging Code in Databricks
+Databricks supports interactive debugging with step in, step over, step out, breakpoints, continue execution.
+
+Debugging Console → lets you inspect variables, evaluate expressions, and control execution flow.
+
+### Difference Between Step In vs Step Out
+
+| **Feature** | **Step Into** (F11) | **Step Over** (F10) | **Step Out** (Shift+F11) |
+| --- | --- | --- | --- |
+| Goes inside function | ✅ Yes | ❌ No | Already inside |
+| Executes current function | Line by line | Entire function | Remaining lines only |
+| Returns to caller | After function ends | Immediately after | Yes |
+
+### Genie Code in Databricks
+Genie integrates AI into Databricks.
+
+**Two modes**
+
+Chat Mode → conversational assistance.
+
+Agent Mode → autonomous code agent.
+
+**Genie can**
+
+Edit code (new code generation).
+
+Explain code.
+
+Rename variables/functions.
+
+Fix errors.
+
+👉 Interview Line: “Genie brings AI into Databricks with chat and agent modes, helping edit, explain, and fix code directly in notebooks.”
 
 
+### Lakeflow Connect Overview
+Lakeflow Connect is Databricks’ data ingestion service.
+
+It provides managed connectors → no‑code ingestion pipelines.
+
+Supports full load and incremental ingestion automatically.
+
+Designed for metadata‑driven, reusable connections.
+
+### When to Use Lakeflow Connect
+For reusable metadata‑driven connections.
+
+When you need a managed way to connect to external sources.
+
+Ideal for enterprise ingestion pipelines where automation and governance are key.
+
+### Lakeflow Spark Declarative Pipelines
+Works with Lakeflow Connect.
+
+Declarative → no need to write full read/write code.
+
+Provides ready‑to‑use SQL‑based transformations.
+
+Fully managed → you don’t need to handle infrastructure or orchestration.
+
+### Lakeflow Spark Declarative Pipelines
+“Lakeflow Spark Declarative Pipelines let you define ingestion and transformation declaratively, while Databricks manages execution and scaling.”
+
+### Declarative Automation Bundles
+
+“Automation Bundles bring CI/CD discipline into Databricks by packaging and deploying data/AI workflows declaratively.”
+
+### CI/CD Process in Databricks
+
+End‑to‑end CI/CD involves:
+
+Version Control → Git integration.
+
+Build/Test → automated testing of notebooks/pipelines.
+
+Deploy → using Asset Bundles or DevOps pipelines.
+
+Monitor → system tables, dashboards.
+
+Hot Fix → urgent patch applied directly to production, bypassing full release cycle.
+
+### Databricks Architecture — Control Plane
+Control Plane → interacts with users and applications.
+
+Manages jobs, notebooks, clusters, security, governance.
+
+Separates from Data Plane (where actual data processing happens).
+
+### Data Quality Monitoring
+Built‑in expectations and validation frameworks.
+
+Checks for nulls, duplicates, invalid values.
+
+Example: expect(amount > 0).
+
+Integrated with Unity Catalog for governance.
+
+Databricks Architecture — Control Plane
+Control Plane → interacts with users and applications.
+
+Manages jobs, notebooks, clusters, security, governance.
+
+Separates from Data Plane (where actual data processing happens).
+
+👉 Interview Line: “Control Plane = management & orchestration; Data Plane = actual compute and storage.”
+
+### Data Quality Monitoring
+Built‑in expectations and validation frameworks.
+
+Checks for nulls, duplicates, invalid values.
+
+Example: expect(amount > 0).
+
+Integrated with Unity Catalog for governance.
+
+### Delta Sharing
+Open protocol to share Delta Lake tables securely.
+
+Share with other users, organizations, or platforms.
+
+No data duplication — direct access to live tables.
+
+### Lakehouse Federation
+Query external data sources without ingestion.
+
+Access data in place (e.g., SQL DB, cloud storage).
+
+Unified governance via Unity Catalog.
+
+👉 Interview Line: “Lakehouse Federation lets you query external sources directly without moving data into Databricks.”
+
+### System Tables
+Prebuilt tables for monitoring and governance.
+
+Store metadata: job runs, billing, cluster usage, query history.
+
+Dashboards can be built on top for observability.
+
+### Genie
+AI assistant inside Databricks.
+
+Generates SQL queries automatically.
+
+Works with semantic layer → centralized KPIs, metrics, relationships.
+
+Components: Materialized Views (mview) and Genie Spaces.
+
+👉 Interview Line: “Genie generates SQL queries using a semantic layer of KPIs and curated datasets governed by Unity Catalog.”
+
+### Databricks One
+New feature → dedicated UI for business users.
+
+Purpose: simplify data access, reporting, and collaboration.
+
+Bridges gap between technical teams and business stakeholders.
+
+##  Volume vs VACUUM vs ZORDER vs Time Travel vs OPTIMIZE vs UNDROP
+
+### Volume
+Definition: Governed file storage location in Unity Catalog.
+
+Use Case: Store unstructured data (PDFs, CSV, Images, JSON, ML models).
+~~~~
+CREATE VOLUME main.finance.raw_files;
+~~~~~
+Access Path: /Volumes/main/finance/raw_files/  
+👉 Best for raw ingestion files, ML artifacts, file sharing.
+
+### VACUUM
+Definition: Physically removes old, unused Delta files from storage.
+~~~~~~
+VACUUM sales RETAIN 168 HOURS;
+~~~~~
+Why: Delta keeps old versions & logs → storage grows.
+👉 Best for reducing storage cost, cleaning up old files.
+⚠️ After VACUUM → old versions may not be recoverable.
+
+### ZORDER
+Definition: Optimizes file organization for faster filtering.
+~~~
+OPTIMIZE sales ZORDER BY (customer_id);
+~~~~
+Benefit: Rows with similar customer_id stored together → fewer files scanned.
+👉 Best for large tables, frequent filtering columns, analytics workloads.
+
+### Time Travel
+Definition: Read old versions of Delta tables using transaction history.
+~~~~
+SELECT * FROM sales VERSION AS OF 1;
+SELECT * FROM sales TIMESTAMP AS OF '2025-05-01';
+~~~~
+👉 Best for audit, rollback, debugging, accidental delete recovery.
+### OPTIMIZE Command
+Definition: Compacts small files into larger efficient ones.
+
+Problem: Streaming/incremental loads → many small files → bad performance.
+~~~~~~
+OPTIMIZE sales;
+~~~~~~~
+👉 Best for after heavy ingestion, large Delta tables, improving query speed.
+
+### UNDROP
+Definition: Recover accidentally dropped table/schema.
+~~~~~
+DROP TABLE sales;
+UNDROP TABLE sales;
+~~~~~~
+Requirement: Files must still exist, not deleted by VACUUM.
+👉 Best for accident recovery, operational mistakes.
+### Relationship Between Them
+
+| **Feature** | **Purpose** | **When to Use** |
+| --- | --- | --- |
+| **[Volume](ca://s?q=Databricks_Volume)** | File storage (raw/unstructured) | ML models, ingestion files |
+| **[OPTIMIZE](ca://s?q=Databricks_OPTIMIZE)** | File compaction | After ingestion, improve query speed |
+| **[ZORDER](ca://s?q=Databricks_ZORDER)** | Faster filtering | Large tables, analytics |
+| **[Time Travel](ca://s?q=Databricks_Time_Travel)** | Read old versions | Audit, rollback, debugging |
+| **[VACUUM](ca://s?q=Databricks_VACUUM)** | Delete old unused files (hard delete) | Reduce storage cost |
+| **[UNDROP](ca://s?q=Databricks_UNDROP)** | Recover dropped objects | Accident recovery |
+
+### Daily ETL → Small Files
+
+~~~
+INSERT INTO sales ...
+~~~~
+### Optimize Performance
+~~~~
+OPTIMIZE sales
+ZORDER BY (customer_id);
+~~~~~~
+OPTIMIZE: Compacts small files into larger ones.
+
+ZORDER: Organizes data for faster filtering.
+
+### Querying with ZORDER
+~~~~
+SELECT * FROM sales WHERE customer_id = 101;
+~~~~~
+Reads fewer files because rows with similar customer_id are stored together.
+
+### Need Historical Data?
+~~~
+SELECT * FROM sales VERSION AS OF 5;
+~~~
+### Cleanup Old Files
+~~~~~
+VACUUM sales RETAIN 168 HOURS;
+~~~~~~
+Removes old, unused Delta files physically.
+👉 Best for reducing storage cost.
+⚠️ After VACUUM → old versions may not be recoverable.
+
+### Accidentally Dropped?
+~~~~~
+DROP TABLE sales;
+UNDROP TABLE sales;
+UNDROP: Recovers dropped tables/schemas.
+~~~~
+👉 Works only if files still exist and VACUUM has not deleted them.
+
+🔥 Interview Trap:  
+👉 “Can UNDROP work after VACUUM?”  
+❌ Usually NO — because physical files may already be deleted.
+
+### OPTIMIZE vs ZORDER
+
+| **Command** | **Purpose** |
+| --- | --- |
+| OPTIMIZE | Merge small files |
+| ZORDER | Organize data for filtering |
 
 
+### Time Travel vs UNDROP
+| **Feature** | **Purpose** |
+| --- | --- |
+| Time Travel | Read old table versions |
+| UNDROP | Recover deleted table object |
 
 
+### Easy Analogy
 
-
-
-
-
-
-
-
-
+| **Feature** | **Analogy** |
+| --- | --- |
+| Volume | Storage room |
+| OPTIMIZE | Combine many tiny boxes |
+| ZORDER | Arrange files smartly |
+| Time Travel | View old snapshots |
+| VACUUM | Throw away old garbage |
+| UNDROP | Restore deleted folder |
 
 
 
