@@ -52,9 +52,13 @@ ADLS Gen2 / OneLake / Delta Tables
 Fabric / Power BI / SQL Analytics
 
 **Identity layer → Microsoft Entra ID.
+
 Governance layer → Unity Catalog.
+
 Compute layer → Databricks clusters.
+
 Storage layer → ADLS Gen2 / OneLake.
+
 Consumption layer → BI tools like Power BI, Fabric, SQL Analytics**
 
 ## Partitioning vs Liquid Clustering
