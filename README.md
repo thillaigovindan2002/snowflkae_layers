@@ -278,30 +278,33 @@ visual lifecycle diagram (Workspace → Pipeline → Notebook → Managed Comput
 
 
 ### Join Optimization Techniques
-Broadcast Join → large_df.join(broadcast(small_df), "id")  
+**Broadcast Joi**
+large_df.join(broadcast(small_df), "id")  
 Pushes small table to all executors → avoids shuffle.  
 Interview Line: “Broadcast join is best when one table is small enough to fit in memory — avoids shuffle and speeds up joins.”
 
-Repartition Before Join → df1.repartition("id").join(df2.repartition("id"), "id")  
+**Repartition Before Join**
+df1.repartition("id").join(df2.repartition("id"), "id")  
 Ensures same join keys go to same partitions.  
 Interview Line: “Repartitioning on join keys reduces skew and ensures parallelism.”
 
-Filter Before Join → df1.filter(col("status")=="active").join(df2,"id")  
+**Filter Before Join**
+df1.filter(col("status")=="active").join(df2,"id")  
 Reduces dataset size early.  
 Interview Line: “Always filter before join to cut down data movement and shuffle size.”
 
-Bucketing Optimization 
-~~~~~
+**Bucketing Optimization**
+~~~
 df.write.bucketBy(8,"id").saveAsTable("emp_bucket")
 ~~~
-Pre‑shuffles data into buckets → reduces shuffle during joins.  
-Interview Line: “Bucketing is useful for repeated joins on the same key — avoids expensive shuffles.”
+ “Bucketing is useful for repeated joins on the same key — avoids expensive shuffles.”
 
-Select Required Columns → df1.select("id","name").join(df2.select("id","dept"),"id")  
+**Select Required Columns** 
+df1.select("id","name").join(df2.select("id","dept"),"id")  
 Avoids unnecessary data movement.  
 Interview Line: “Project only required columns before join to reduce shuffle size.”
 
-Handle Skew Join (AQE) →
+**Handle Skew Join (AQE)**
 
 ~~~~~
 spark.conf.set("spark.sql.adaptive.enabled","true")
@@ -310,18 +313,18 @@ spark.conf.set("spark.sql.adaptive.skewJoin.enabled","true")
 Adaptive Query Execution splits skewed partitions.  
 Interview Line: “AQE automatically handles skew joins by splitting large partitions.”
 
-Cache Frequently Used DataFrame →
+**Cache Frequently Used DataFrame**
 ~~~
 df.cache()
 ~~~
 Avoids recomputation across multiple joins.  
 Interview Line: “Cache reused DataFrames to save recomputation cost.”
 
-Semi Join Instead of Inner Join  
+**Semi Join Instead of Inner Join**
 Processes only existence check, not full join.  
 Interview Line: “Semi joins are lighter when you only need existence checks.”
 
-Join Order (small table first)  
+**Join Order (small table first)**
 Optimizer prefers small table first for efficiency.  
 Interview Line: “Always join smaller tables first to reduce shuffle and memory usage.”
 
