@@ -51,7 +51,7 @@ ADLS Gen2 / OneLake / Delta Tables
         ↓
 Fabric / Power BI / SQL Analytics
 
-**Identity layer → Microsoft Entra ID.
+Identity layer → Microsoft Entra ID.
 
 Governance layer → Unity Catalog.
 
@@ -59,7 +59,7 @@ Compute layer → Databricks clusters.
 
 Storage layer → ADLS Gen2 / OneLake.
 
-Consumption layer → BI tools like Power BI, Fabric, SQL Analytics**
+Consumption layer → BI tools like Power BI, Fabric, SQL Analytics
 
 ## Partitioning vs Liquid Clustering
 
@@ -227,11 +227,16 @@ Create Pipeline
 
 **Example
 Pipeline Name : customer_pipeline
+
 Notebook : customer_pipeline.py
+
 Target Catalog : main
+
 Target Schema : bronze
 Mode : Triggered / Continuous
+
 Compute : Managed by Databricks
+
 Click Create.**
 
 Databricks automatically provisions the compute.
