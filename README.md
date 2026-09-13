@@ -247,11 +247,7 @@ You do not create clusters manually.
 
 Instead, Databricks provisions compute automatically when you define a pipeline.
 
-Steps:
-
 Go to Workspace → Pipelines → Create Pipeline.
-
-Provide details:
 
 Pipeline Name → e.g., customer_pipeline.
 
@@ -267,8 +263,7 @@ Compute → Managed by Databricks.
 
 Click Create → Databricks provisions compute automatically.
 
-🔹 Why This Matters
-No cluster management → Databricks handles provisioning, scaling, monitoring.
+### Why This Matters No cluster management → Databricks handles provisioning, scaling, monitoring.
 
 Governance → Integrated with Unity Catalog for lineage & security.
 
@@ -281,24 +276,8 @@ Flexibility → Supports both batch (Triggered) and streaming (Continuous).
 
 visual lifecycle diagram (Workspace → Pipeline → Notebook → Managed Compute → Bronze/Silver/Gold tables) so you can memorize the flow faster for interviews?
 
-1. Broadcast Join ->large_df.join(broadcast(small_df), "id") 
-2. Repartition Before Join -> 💡 Ensures same join keys go to same partitions. df1.repartition("id").join(df2.repartition("id"), "id")
-3.	Filter Before Join 💡 Reduces join data size early.
-df1.filter(col("status") == "active").join(df2, "id")
 
-4. Bucketing Optimization -> Reduces shuffle during joins. 
-df.write.bucketBy(8, "id").saveAsTable("emp_bucket")
-5. Select Required Columns 💡 Avoids unnecessary data movement.
-df1.select("id","name").join(df2.select("id","dept"), "id")
-6. Handle Skew Join 💡manual and Automatically optimizes skew partitions in AQE. 
-spark.conf.set("spark.sql.adaptive.enabled", "true")-> for all
-spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")-> skew only
-7.	Cache Frequently Used DataFrame 💡 Avoids recomputation in multiple joins. -> df.cache()
-8.	Using semi join instead for inner join
-9.•	join order lik small table first### explain interview point of view
-Alright Thanigai 👌 — let’s break down these Spark Join Optimizations in a crisp interview‑style explanation so you can recall them instantly:
-
-🔹 Join Optimization Techniques
+### Join Optimization Techniques
 Broadcast Join → large_df.join(broadcast(small_df), "id")  
 Pushes small table to all executors → avoids shuffle.  
 Interview Line: “Broadcast join is best when one table is small enough to fit in memory — avoids shuffle and speeds up joins.”
@@ -311,7 +290,10 @@ Filter Before Join → df1.filter(col("status")=="active").join(df2,"id")
 Reduces dataset size early.  
 Interview Line: “Always filter before join to cut down data movement and shuffle size.”
 
-Bucketing Optimization → df.write.bucketBy(8,"id").saveAsTable("emp_bucket")  
+Bucketing Optimization 
+~~~~~
+df.write.bucketBy(8,"id").saveAsTable("emp_bucket")
+~~~
 Pre‑shuffles data into buckets → reduces shuffle during joins.  
 Interview Line: “Bucketing is useful for repeated joins on the same key — avoids expensive shuffles.”
 
@@ -321,13 +303,17 @@ Interview Line: “Project only required columns before join to reduce shuffle s
 
 Handle Skew Join (AQE) →
 
-python
+~~~~~
 spark.conf.set("spark.sql.adaptive.enabled","true")
 spark.conf.set("spark.sql.adaptive.skewJoin.enabled","true")
+~~~~~
 Adaptive Query Execution splits skewed partitions.  
 Interview Line: “AQE automatically handles skew joins by splitting large partitions.”
 
-Cache Frequently Used DataFrame → df.cache()  
+Cache Frequently Used DataFrame →
+~~~
+df.cache()
+~~~
 Avoids recomputation across multiple joins.  
 Interview Line: “Cache reused DataFrames to save recomputation cost.”
 
@@ -339,15 +325,9 @@ Join Order (small table first)
 Optimizer prefers small table first for efficiency.  
 Interview Line: “Always join smaller tables first to reduce shuffle and memory usage.”
 
-⚖️ Interview One‑Liner Summary
 “Spark join optimization is about reducing shuffle, skew, and data movement — use broadcast for small tables, repartition on keys, filter early, bucket for repeated joins, project only needed columns, enable AQE for skew, cache reused DataFrames, and prefer semi joins or small‑table‑first joins.”
 
-👉 Thanigai, do you want me to also prepare a compact cheat‑sheet table (Technique → Code → One‑liner) so you can memorize these faster for interviews?
-
-Query Optimization
-•	execution plan
-🔥 Most Asked Interview Scenario “How do you optimize slow queries?” 
-✅ Answer: “I analyze execution plans to identify shuffles, skew joins, sort merge joins, full scans, and missing predicate pushdown or partition pruning.”
+ “I analyze execution plans to identify shuffles, skew joins, sort merge joins, full scans, and missing predicate pushdown or partition pruning.”
 1 ️Broadcast Join : BroadcastHashJoin
 2 ️Sort Merge Join : SortMergeJoin,Exchange,Sort
 3 ️Predicate Pushdown :  PushedFilters:
@@ -355,11 +335,10 @@ Query Optimization
 5 ️Window Function Plan : Window,Sort,Exchange
 Alright Thanigai 👌 — here’s the interview‑style cheat sheet for Query Optimization in Spark using execution plans:
 
-🔹 Most Asked Interview Scenario
-Q: “How do you optimize slow queries?”  
-A: “I analyze execution plans to identify shuffles, skew joins, sort merge joins, full scans, and missing predicate pushdown or partition pruning.”
+### How do you optimize slow queries?
+ “I analyze execution plans to identify shuffles, skew joins, sort merge joins, full scans, and missing predicate pushdown or partition pruning.”
 
-🔹 Execution Plan Keywords
+### Execution Plan Keywords
 Optimization	Execution Plan Keyword	Interview Point
 Broadcast Join	BroadcastHashJoin	Small table broadcast → avoids shuffle.
 Sort Merge Join	SortMergeJoin, Exchange, Sort	Used for large joins → expensive shuffle.
@@ -373,7 +352,8 @@ Window Functions	Window, Sort, Exchange	Expensive → optimize by reducing sort/
 
 👉 Thanigai, do you want me to also prepare a step‑by‑step debugging workflow (df.explain, stats, AQE toggles) so you can demonstrate how you actually debug a slow Spark job in real‑time during interviews?
 
-How do you debug slow Spark jobs?” ✅ Answer: “I analyze Spark explain plans to identify expensive shuffles, skew joins, sort merge joins, missing partition pruning, and inefficient scans.”
+### How do you debug slow Spark jobs?”
+ ✅ Answer: “I analyze Spark explain plans to identify expensive shuffles, skew joins, sort merge joins, missing partition pruning, and inefficient scans.”
 Job Running Slow( df.explain(True)) Check: shuffle? sort merge join? partition pruning? broadcast happening? predicate pushdown?
 
 “Why Spark selecting wrong join?” Possible reason: missing statistics Solution ANALYZE TABLE;
@@ -406,71 +386,25 @@ Predicate Pushdown → filters applied at source?
 Fix Wrong Join Choice
 
 Cause: Missing statistics.
-
-Solution:
-
-sql
+~~~~~~
 ANALYZE TABLE table_name COMPUTE STATISTICS;
 DESCRIBE EXTENDED table_name;
+~~~~~
 With stats, Spark optimizer picks the right join (e.g., BroadcastHashJoin instead of SortMergeJoin).
 
 Adaptive Query Execution (AQE)
 
 Enable AQE for skew handling:
-
-python
+~~~~
 spark.conf.set("spark.sql.adaptive.enabled","true")
 spark.conf.set("spark.sql.adaptive.skewJoin.enabled","true")
+~~~~
 🔹 Interview One‑Liner Summary
 “To debug slow Spark jobs, I analyze the execution plan for shuffles, skew joins, sort merge joins, missing pruning, and pushdown. If Spark picks the wrong join, I compute statistics with ANALYZE TABLE. AQE helps handle skew automatically.”
 
 👉 Thanigai, do you want me to also prepare a visual workflow diagram (Explain Plan → Identify Issue → Apply Fix → AQE → Faster Queries) so you can memorize the debugging lifecycle faster for interviews?
 
-?“How do you debug slow Spark jobs?” ✅ Answer: “I analyze Spark explain plans to identify expensive shuffles, skew joins, sort merge joins, missing partition pruning, and inefficient scans.”
-Alright Thanigai 👌 — here’s how you frame the “How do you debug slow Spark jobs?” question in interviews with a clear workflow:
 
-🔹 Interview Answer
-“I debug slow Spark jobs by analyzing the execution plan (df.explain(True)) to identify expensive shuffles, skew joins, sort merge joins, missing partition pruning, and inefficient scans. If Spark selects the wrong join, I check table statistics and fix it using ANALYZE TABLE.”
-
-🔹 Debugging Workflow
-Execution Plan Analysis → df.explain(True)
-
-Look for:
-
-Shuffle → large data movement.
-
-SortMergeJoin → heavy shuffle + sort.
-
-Partition Pruning → missing? → full scans.
-
-BroadcastHashJoin → happening or not?
-
-Predicate Pushdown → filters applied at source?
-
-Statistics Check
-
-Cause: Spark optimizer may pick wrong join strategy if stats are missing.
-
-Solution:
-
-sql
-ANALYZE TABLE table_name COMPUTE STATISTICS;
-DESCRIBE EXTENDED table_name;
-With stats, Spark can choose BroadcastHashJoin instead of SortMergeJoin.
-
-Adaptive Query Execution (AQE)
-
-Enable AQE for skew handling:
-
-python
-spark.conf.set("spark.sql.adaptive.enabled","true")
-spark.conf.set("spark.sql.adaptive.skewJoin.enabled","true")
-🔹 Interview One‑Liner Summary
-“To debug slow Spark jobs, I analyze the explain plan for shuffles, skew joins, sort merge joins, missing pruning, and pushdown. If Spark picks the wrong join, I compute statistics with ANALYZE TABLE. AQE helps handle skew automatically.”
-
-👉 Thanigai, would you like me to also prepare a compact cheat‑sheet table (Issue → Execution Plan Keyword → Fix) so you can memorize the debugging lifecycle faster for interviews?
-
-Today
 01:21 Unity Catalog
 	🔹 What is Unity Catalog? 👉 Unity Catalog is the centralized governance and metadata layer in Databricks. can access multible Workspace/ in same metastore
 1. Unity Catalog vs Catalog (Main Difference)
