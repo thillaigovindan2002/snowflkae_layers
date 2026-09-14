@@ -361,10 +361,7 @@ Partition Pruning	PartitionFilters:	Reads only relevant partitions → faster sc
 Window Functions	Window, Sort, Exchange	Expensive → optimize by reducing sort/shuffle.
 
 
-🔹 Interview One‑Liner Summary
-“Query optimization in Spark means reading the execution plan carefully — look for BroadcastHashJoin (good), SortMergeJoin + Exchange (expensive shuffle), PushedFilters (predicate pushdown), PartitionFilters (partition pruning), and Window/Sort/Exchange (heavy operations). Then apply optimizations like broadcast joins, filtering early, bucketing, caching, and AQE.”
 
-👉 Thanigai, do you want me to also prepare a step‑by‑step debugging workflow (df.explain, stats, AQE toggles) so you can demonstrate how you actually debug a slow Spark job in real‑time during interviews?
 
 ### How do you debug slow Spark jobs?”
  ✅ Answer: “I analyze Spark explain plans to identify expensive shuffles, skew joins, sort merge joins, missing partition pruning, and inefficient scans.”
