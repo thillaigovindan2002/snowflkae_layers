@@ -1224,8 +1224,123 @@ Bridges gap between technical teams and business stakeholders.
 
 ##  Volume vs VACUUM vs ZORDER vs Time Travel vs OPTIMIZE vs UNDROP
 
+## Volume Overview
+A Volume is a governed file storage location in Unity Catalog.
+
+Purpose: store unstructured or semi‑structured files like PDFs, CSVs, JSON, Images, ML models.
+~~~
+CREATE VOLUME main.finance.raw_files;
+~~~
+Creates a volume inside catalog main, schema finance.
+### When to Use Volumes
+Unstructured data (PDFs, images, JSON).
+
+File sharing across teams with governance.
+
+ML artifacts (models, training files).
+
+Raw ingestion files before transformation into Delta tables.
+
+### VACUUM Overview
+VACUUM physically removes old, unused Delta files from storage.
+
+Delta Lake keeps transaction logs and old versions for Time Travel.
+
+Without VACUUM → storage keeps growing endlessly.
+
+~~~~~
+VACUUM sales RETAIN 168 HOURS;
+~~~~~
+
+168 HOURS = 7 days retention.
+
+Files older than 7 days are deleted permanently.
+### Z‑ORDER Overview
+Definition: Z‑ORDER optimizes file organization for faster filtering in Delta Lake.
+
+It improves data skipping and query performance 
+
+~~~
+OPTIMIZE sales
+ZORDER BY (customer_id);
+~~~
 
 
+Rows with similar customer_id values are stored closer together.
+
+Queries filtering on customer_id will read fewer files.
+
+When to Use Z‑ORDER
+✅ Large tables with billions of rows.
+
+✅ Columns frequently used in filters (WHERE, JOIN).
+
+✅ Analytics workloads where query speed matters.
 
 
+### Time Travel Overview
 
+Time Travel allows you to query older versions of Delta tables.
+
+Delta Lake maintains transaction history and file versions.
+
+This makes it possible to audit, debug, or recover data without restoring backups.
+
+
+Current Data
+~~~~
+id   amount
+1    100
+~~~~
+Later Updated
+~~~
+id   amount
+1    500
+~~~~
+Query Old Version
+~~~~~
+SELECT * FROM sales VERSION AS OF 1;
+
+SELECT * FROM sales TIMESTAMP AS OF '2025-05-01';
+~~~~~~~
+
+
+### 
+When to Use Time Travel
+✅ Audit → check historical values.
+
+✅ Rollback → restore table to previous state.
+
+✅ Debugging → compare old vs new data.
+
+✅ Accidental delete recovery → retrieve lost rows.
+
+### OPTIMIZE Overview
+Definition: OPTIMIZE compacts many small Delta files into fewer, larger, efficient files.
+
+Problem: Streaming or incremental loads often create lots of small files, which hurt query performance.
+~~~
+OPTIMIZE sales;
+~~~~
+
+When to Use OPTIMIZE
+✅ After heavy ingestion (batch or streaming).
+
+✅ Large Delta tables with many small files.
+
+✅ To improve query speed and efficiency.
+
+### UNDROP Overview
+Definition: UNDROP recovers accidentally dropped tables or schemas in Databricks.
+
+It works only for managed Delta tables where the underlying files still exist.
+
+~~~~
+DROP TABLE sales;
+
+UNDROP TABLE sales;
+~~~~
+### When to Use?
+
+✅ Accident recovery
+✅ Operational mistakes
