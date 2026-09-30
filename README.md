@@ -395,9 +395,6 @@ BroadcastHashJoin → happening or not?
 Predicate Pushdown → filters applied at source?
 
 Fix Wrong Join Choice
-
-Cause: Missing statistics.
-~~~~~~
 ANALYZE TABLE table_name COMPUTE STATISTICS;
 DESCRIBE EXTENDED table_name;
 ~~~~~
@@ -674,6 +671,8 @@ Behavior:
 It re‑runs all code (including print, heavy logic, file reads).
 
 Every call reloads everything → slow and inefficient.
+
+ Bad Example:
 
  Bad Example:
 
