@@ -230,8 +230,11 @@ LOCATION 'abfss://container@storageaccount.dfs.core.windows.net/data/';
 ##  How Unity Catalog Works with Azure
 
 Storage Layer :Uses: 👉 Azure Data Lake Storage (ADLS Gen2)
+
 Identity Layer Uses:👉 Microsoft Entra ID
+
 Compute Layer Uses:👉 Databricks clusters
+
 Governance Layer Uses:👉 Unity Catalog
 
 
