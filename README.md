@@ -395,7 +395,195 @@ Compute : Managed by Databricks
 Click Create.
 
 Databricks automatically provisions the compute.
-Lakeflow Pipeline Compute (formerly Delta Live Tables) creation:
+Lakeflow Pipeline Compute (formerly Delta Live Tables) creation
+
+## Databricks Notebook Magic Commands
+| Command  | Purpose |
+|-----------|----------|
+| `%python` | Switch to Python language |
+| `%sql` | Switch to SQL language |
+| `%scala` | Switch to Scala language |
+| `%r` | Switch to R language |
+| `%run` | Execute another notebook |
+| `%fs` | Perform file system operations |
+| `%sh` | Run shell/Linux commands |
+| `%md` | Create Markdown documentation |
+| `%pip` | Install Python libraries |
+| `%time` | Measure execution time |
+
+
+## %run Example
+~~~
+# utils_notebook
+
+def add(a, b):
+    return a + b
+
+print("Notebook executed")
+
+%run /Shared/utils_notebook
+
+result = add(2, 3)
+
+print(result)
+~~~
+OUTPUT
+Notebook executed
+5
+**When %run executes**
+
+Runs all code in that notebook
+Loads all functions and variables
+
+## import Example
+
+Instead of a notebook, create a Python file.
+~~~~
+def add(a, b):
+    return a + b
+
+import utils
+
+result = utils.add(2, 3)
+
+print(result)
+~~~~~
+OUTPUT
+5
+## Simple Explanation
+
+When import executes:
+
+Loads the Python module
+Makes functions available
+Does not run unnecessary notebook code
+Faster and cleaner
+## dbutils.notebook.run()
+
+Used to execute another notebook as a separate notebook job.
+~~
+Child Notebook
+
+Path: /Shared/calculator
+
+
+# calculator
+ 
+dbutils.notebook.exit("5")
+
+Parent Notebook
+Python
+result = dbutils.notebook.run(
+"/Shared/calculator",
+60
+)
+ 
+print(result)
+
+Output
+Plain Text
+5
+~~
+## what is the difference between %run and import in Databricks?
+
+%run executes the entire target notebook and makes all variables and functions available,
+whereas import loads only the required Python module or functions. For production environments, import is preferred because it is faster, cleaner, and provides better code modularity. 
+## Secret Scopes and Secrets in Databricks
+**What is a Secret Scope?**
+
+A Secret Scope is a secure container used to store sensitive information such as:
+
+Database passwords
+API Keys
+Access Tokens
+Connection Strings
+Encryption Keys
+SSL/TLS Certificates
+~~~
+password = dbutils.secrets.get(
+    scope="prod-scope",
+    key="db-password"
+)
+~~~
+## Architecture View
+~~
+User Code
+    ↓
+Secret Scope
+    ↓
+Secure Storage
+    ↓
+External Service
+~~
+## Benefits of Secret Scopes
+
+✅ No hardcoded credentials
+
+✅ Centralized secret management
+
+✅ Role-based access control (ACL)
+
+✅ Secure and auditable
+
+✅ Enterprise-ready
+
+## pes of Secret Scopes
+1. Databricks-backed Secret Scope
+
+Secrets are stored inside Databricks.
+~~~
+Databricks
+    ↓
+Secret Scope
+    ↓
+Secrets
+~~~
+2. Azure Key Vault-backed Secret Scope
+
+Secrets are stored in Azure Key Vault.
+
+~~~
+Databricks
+↓
+Secret Scope
+↓
+Azure Key Vault
+↓
+Secrets
+~~~
+## How can credentials be stored securely in Databricks?
+Answer
+
+We create a Secret Scope and store secrets within it.
+~~~
+password = dbutils.secrets.get(
+scope="prod-scope",
+key="db-password"
+)
+~~~
+## How to Read Any Secret
+~~~
+dbutils.secrets.get(
+scope="<scope-name>",
+key="<key-name>"
+)
+~~~
+~~~
+Azure Entra ID
+   (Users & Groups)
+            ↓
+Databricks ACL
+    (Secret Scope Access)
+            ↓
+Managed Identity
+     or Service Principal
+            ↓
+Azure Key Vault RBAC
+            ↓
+Secrets
+            ↓
+ADLS / Databases / APIs
+~~~
 
 ### How Lakeflow Pipeline Compute is Created
 You do not create clusters manually.
