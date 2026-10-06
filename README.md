@@ -239,17 +239,31 @@ Governance Layer Uses:👉 Unity Catalog
 
 ## Core Components of Unity Catalog
 
-
-~~~~~~~
+~~~
 | Metastore          | Central metadata repository |      | Catalog-level | Finance catalog    |
 | Catalog            | Top-level container         |      | Schema-level  | HR schema          |
 | Schema             | Database/grouping           |      | Table-level   | Employee table     |
 | Tables/Views       | Data objects                |      | Row-level     | Only India records |
 | Volumes            | File storage governance     |      | Column-level  | Hide salary column |
 | External Locations | Secure cloud storage access |      
-~~~~~~
-##
+~~~
 
+## Unity Catalog Features
+
+Unity Catalog provides centralized governance through RBAC, Row-Level Security, Column-Level Security, Auditing, Lineage, Metadata Management, Data Discovery, Data Quality Monitoring, Volumes, and Time Travel, ensuring secure and governed access to data assets across Databricks.
+
+| Feature | Purpose | Example / Use Case |
+|----------|---------|-------------------|
+| Access Control (RBAC) | Controls who can access what data and resources | GRANT SELECT ON TABLE sales TO analysts; |
+| Row-Level Security (RLS) | Restricts data visibility at the row level | Manager sees only records from their region |
+| Column-Level Security (CLS) | Restricts access to sensitive columns | Mask or hide Salary column |
+| Auditing | Tracks user activities and data access | Who accessed data, queries executed, failed access attempts |
+| Lineage | Tracks end-to-end data flow automatically | Raw Table → Transformation → Gold Table → Dashboard |
+| Metadata Management | Central repository for metadata | Stores table names, schemas, owners, tags |
+| Data Discovery | Enables easy dataset search and discovery | Search "customer" to find tables, views, and owners |
+| Data Quality Monitoring | Monitors and validates data quality | Checks nulls, duplicates, invalid values |
+| Volumes | Governed storage for non-tabular files | Stores CSVs, PDFs, Images, ML Models |
+| Time Travel | Accesses historical versions of Delta tables | SELECT * FROM sales VERSION AS OF 5; |
 ## Lakeflow Pipeline Compute (formerly Delta Live Tables)
 How is it created?  You do not create a cluster manually.
 
