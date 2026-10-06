@@ -227,6 +227,13 @@ The storage location is managed by the user and points to existing cloud storage
 CREATE EXTERNAL VOLUME sales_catalog.sales_schema.ext_volume
 LOCATION 'abfss://container@storageaccount.dfs.core.windows.net/data/';
 ~~~
+##  How Unity Catalog Works with Azure
+
+Storage Layer :Uses: 👉 Azure Data Lake Storage (ADLS Gen2)
+Identity Layer Uses:👉 Microsoft Entra ID
+Compute Layer Uses:👉 Databricks clusters
+Governance Layer Uses:👉 Unity Catalog
+
 
 ## Lakeflow Pipeline Compute (formerly Delta Live Tables)
 How is it created?  You do not create a cluster manually.
