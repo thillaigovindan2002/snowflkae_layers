@@ -264,6 +264,111 @@ Unity Catalog provides centralized governance through RBAC, Row-Level Security, 
 | Data Quality Monitoring | Monitors and validates data quality | Checks nulls, duplicates, invalid values |
 | Volumes | Governed storage for non-tabular files | Stores CSVs, PDFs, Images, ML Models |
 | Time Travel | Accesses historical versions of Delta tables | SELECT * FROM sales VERSION AS OF 5; |
+
+## 1. Databricks Cluster Types
+
+| Cluster Type | Use Case | Cost | Lifecycle |
+|--------------|----------|------|-----------|
+| All-Purpose Cluster | Development, Notebooks, Debugging | Higher | Manual / Auto Stop |
+| Job Cluster | Production ETL Jobs | Lower | Auto Create & Delete |
+| SQL Warehouse | BI Reporting & Dashboards | Optimized | Fully Managed |
+
+## 2. Core Compute Types
+
+| Compute Type | Purpose | Used By | Lifecycle | Best For |
+|-------------|----------|----------|------------|-----------|
+| All-Purpose Cluster | Interactive Development | Developers, Data Scientists | Manual / Auto Stop | Development |
+| Job Cluster | Execute Scheduled Jobs | ETL Pipelines | Auto Create & Delete | Production |
+| SQL Warehouse | SQL Analytics | Analysts, BI Users | Auto Managed | Reporting |
+
+## 3. All-Purpose vs Job Cluster vs SQL Warehouse
+
+| Feature | All-Purpose Cluster | Job Cluster | SQL Warehouse |
+|----------|---------------------|-------------|---------------|
+| Development | ✅ | ❌ | ❌ |
+| Production ETL | ❌ | ✅ | ❌ |
+| BI / Dashboard | ❌ | ❌ | ✅ |
+| Shared by Users | ✅ | ❌ | ✅ |
+| Supports Notebooks | ✅ | ❌ | ❌ |
+| Auto Creation | ❌ | ✅ | ✅ |
+| Auto Deletion | ❌ | ✅ | ✅ |
+| Cost Efficiency | Medium | High | High |
+| Primary Users | Developers | Pipelines | Analysts |
+
+## 4. Important Cluster Configurations
+
+| Cluster Configuration | Description |
+|----------------------|-------------|
+| Single Node Cluster | Runs on one machine, suitable for testing and small datasets |
+| Multi Node Cluster | Runs on multiple machines for large-scale processing |
+| High Concurrency Cluster | Supports multiple users simultaneously |
+| Standard Cluster | Default cluster type for general workloads |
+
+## 5. Compute Modes
+
+| Compute Mode | Meaning | Benefits | Limitation |
+|--------------|---------|----------|------------|
+| Classic | User manages cluster infrastructure | Full control and flexibility | More administration |
+| Serverless | Databricks manages infrastructure | Fast startup, no management | Less control |
+
+## 6. Classic vs Serverless
+
+| Feature | Classic | Serverless |
+|----------|----------|------------|
+| Cluster Management | User Managed | Databricks Managed |
+| Startup Time | Slower | Instant |
+| Infrastructure Control | High | Low |
+| Maintenance | User Responsibility | Databricks Responsibility |
+| ETL Workloads | Best Choice | Limited |
+| Dashboards | Supported | Best Choice |
+| Ad-Hoc Analytics | Supported | Best Choice |
+| Custom Libraries | Supported | Limited |
+
+## 7. Cluster Size / Structure
+
+| Type | Meaning | Recommended For |
+|--------|----------|----------------|
+| Single Node | One Machine | Testing, Learning |
+| Multi Node | Multiple Machines | Large Datasets |
+| Standard Cluster | Distributed Cluster | General Workloads |
+
+## 8. Workload vs Recommended Compute
+
+| Workload | Recommended Compute |
+|-----------|--------------------|
+| Development | All-Purpose Cluster |
+| Production ETL | Job Cluster |
+| Streaming | Lakeflow Pipeline Compute |
+| Dashboard Reporting | SQL Warehouse |
+| Ad-Hoc SQL Analysis | Serverless SQL Warehouse |
+| ML Training | ML Cluster |
+
+## 9. ML Cluster
+
+| Feature | Description |
+|----------|------------|
+| Purpose | Machine Learning Workloads |
+| Pre-installed Libraries | MLflow, Scikit-Learn, TensorFlow, PyTorch |
+| Additional Libraries | XGBoost, LightGBM, Hyperopt |
+| Advantage | No Manual Installation Required |
+
+## 10. Most Important Interview Mapping
+
+| Use Case | Recommended Setup |
+|-----------|------------------|
+| Development | All-Purpose Cluster + Classic |
+| Production ETL | Job Cluster + Classic |
+| BI Reporting | SQL Warehouse + Serverless |
+| Ad-Hoc SQL | Serverless SQL Warehouse |
+| Testing | Single Node All-Purpose Cluster |
+| ML Training | ML Cluster |
+| Streaming | Lakeflow Pipeline Compute |
+
+## Interview One-Liner
+
+| Scenario | Answer |
+|-----------|--------|
+| Development | All-Purpose Cluster 
 ## Lakeflow Pipeline Compute (formerly Delta Live Tables)
 How is it created?  You do not create a cluster manually.
 
