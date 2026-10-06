@@ -247,8 +247,9 @@ Governance Layer Uses:👉 Unity Catalog
 | Tables/Views       | Data objects                |      | Row-level     | Only India records |
 | Volumes            | File storage governance     |      | Column-level  | Hide salary column |
 | External Locations | Secure cloud storage access |      
-
 ~~~~~~
+##
+
 ## Lakeflow Pipeline Compute (formerly Delta Live Tables)
 How is it created?  You do not create a cluster manually.
 
