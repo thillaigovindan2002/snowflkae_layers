@@ -237,7 +237,18 @@ Compute Layer Uses:👉 Databricks clusters
 
 Governance Layer Uses:👉 Unity Catalog
 
+## Core Components of Unity Catalog
 
+
+~~~~~~~
+| Metastore          | Central metadata repository |      | Catalog-level | Finance catalog    |
+| Catalog            | Top-level container         |      | Schema-level  | HR schema          |
+| Schema             | Database/grouping           |      | Table-level   | Employee table     |
+| Tables/Views       | Data objects                |      | Row-level     | Only India records |
+| Volumes            | File storage governance     |      | Column-level  | Hide salary column |
+| External Locations | Secure cloud storage access |      
+
+~~~~~~
 ## Lakeflow Pipeline Compute (formerly Delta Live Tables)
 How is it created?  You do not create a cluster manually.
 
