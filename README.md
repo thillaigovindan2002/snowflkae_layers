@@ -213,6 +213,21 @@ Purpose → Store CSV, JSON, PDFs, Images, ML models, unstructured/semi‑struct
 | File storage | Limited | Primary purpose |
 | Delta format | Usually yes | Any file type |
 
+### Types of Volumes in Unity Catalog
+
+## Managed Volume:
+Databricks manages the storage location and lifecycle of the files.
+~~~
+CREATE VOLUME sales_catalog.sales_schema.sales_volume;
+/Volumes/sales_catalog/sales_schema/sales_volume/
+~~~
+## External Volume: 
+The storage location is managed by the user and points to existing cloud storage.
+~~~
+CREATE EXTERNAL VOLUME sales_catalog.sales_schema.ext_volume
+LOCATION 'abfss://container@storageaccount.dfs.core.windows.net/data/';
+~~~
+
 ## Lakeflow Pipeline Compute (formerly Delta Live Tables)
 How is it created?  You do not create a cluster manually.
 
